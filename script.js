@@ -866,7 +866,7 @@ function exchangeCopperToMoney(amount) {
 function watchRealAdsgramAd() {
     if (adsWatchedToday >= 5) { notify("🚫 Лимит рекламы исчерпан (5 в сутки)."); return; }
     if (window.Adsgram) {
-        window.Adsgram.init({ blockId: "YOUR_ADSGRAM_BLOCK_ID" }).show().then(() => {
+        window.Adsgram.init({ blockId: "49269" }).show().then(() => {
             copper += 1; adsWatchedToday++;
             saveGame();
             notify("🟫 Реклама просмотрена! +1 кг меди."); openShop();
