@@ -17,8 +17,8 @@ let currentDay = 1;
 let gameHour = 7; 
 let energy = 100;
 let stress = 15; 
-let money = 30;   
-let copper = 2;   
+let money = 30;    
+let copper = 2;    
 let cigarettes = 1; 
 let salo = 0; 
 let tapeCount = 1; 
@@ -337,7 +337,7 @@ function vasilyReact(laugh) {
 }
 
 // ==========================================
-// СТАРЫЙ КПК (ХАРДКОРНЫЙ И АКТИВНЫЙ)
+// СТАРЫЙ КПК
 // ==========================================
 const PHONE_GRID_SIZE = 3;
 
@@ -381,17 +381,16 @@ function startPhoneMinigame() {
 
     nextPhoneTarget();
 
-    // Сделали КПК более активным и хардкорным, бонус от тычки = 1
     phoneRiskInterval = setInterval(() => {
         if (!phonePlaying) return;
-        let step = (Math.random() * 3 + 2) * difficultyMultiplier(); // Активный рост риска
+        let step = (Math.random() * 3 + 2) * difficultyMultiplier();
         if (Math.random() < 0.08) step += 8; 
         phoneRisk += step;
 
         const bar = document.getElementById("phone-risk-fill");
         if (bar) bar.style.width = Math.min(100, phoneRisk) + "%";
 
-        const catchChance = phoneRisk / 380; // Жёсткий порог палева
+        const catchChance = phoneRisk / 380;
         if (Math.random() < catchChance || phoneRisk >= 100) {
             phoneCaught();
         }
@@ -413,13 +412,13 @@ function nextPhoneTarget() {
     if (phoneRoundTimeout) clearTimeout(phoneRoundTimeout);
     phoneRoundTimeout = setTimeout(() => {
         if (phonePlaying) nextPhoneTarget();
-    }, 950); // Меньше времени на клетку
+    }, 950);
 }
 
 function phoneCellClick(i) {
     if (!phonePlaying) return;
     if (i === phoneTargetIndex) {
-        const bonus = 1; // Снижено до 1, чтобы полностью сбить стресс на расслабоне не получилось
+        const bonus = 1;
         stress = Math.max(0, stress - bonus);
         phoneStressRelief += bonus;
         const relief = document.getElementById("phone-relief");
@@ -609,13 +608,23 @@ function buySaloMoney() {
 }
 
 // ==========================================
-// РЕМОНТ СТАНКА (КУВАЛДА С ПРОГРЕССИЕЙ)
+// РЕМОНТ СТАНКА (КУВАЛДА С КНОПКОЙ СТАРТА)
 // ==========================================
 let repairAttemptsLeft = 10;
 let successfulHits = 0;
 let repairInterval = null;
 
 function startRepairMinigame() {
+    let container = document.getElementById("choices-container");
+    document.getElementById("event-text").innerText = `⚙️ Ремонт линии (Вариант 1: Кувалда):\nТребуется вмешательство кувалды. Нажми «Начать смену», чтобы запустить механизм.`;
+    
+    container.innerHTML = `
+        <button id="btn-mg-start" class="main-btn" onclick="initRepairProcess()" style="background: #4CAF50; font-weight: bold; padding: 15px; width: 100%; cursor: pointer;">▶️ Начать ремонт линии</button>
+        <button onclick="loadNextHourEvent()" style="background: #777; margin-top: 8px; width: 100%;">⬅️ Назад</button>
+    `;
+}
+
+function initRepairProcess() {
     let container = document.getElementById("choices-container");
     repairAttemptsLeft = 10;
     successfulHits = 0;
@@ -661,6 +670,7 @@ function startRepairMinigame() {
         repairAttemptsLeft--;
         let feedback = document.getElementById("repair-feedback");
 
+        // Зеленая зона находится вверху окружности (от 335 до 25 градусов)
         if (angle >= 335 || angle <= 25) {
             successfulHits++;
             if (feedback) feedback.innerText = "🎯 Четкий удар по контактам!";
@@ -695,11 +705,21 @@ function finishRepairMiniGame() {
 }
 
 // ==========================================
-// РЕМОНТ СТАНКА (ПРОВОДА С ПРОГРЕССИЕЙ)
+// РЕМОНТ СТАНКА (ПРОВОДА С КНОПКОЙ СТАРТА)
 // ==========================================
 let wireTimeout = null;
 
 function startWireCutMinigame() {
+    let container = document.getElementById("choices-container");
+    document.getElementById("event-text").innerText = `⚙️ Ремонт линии (Вариант 2: Замкнутые провода):\nЩит искрит! Нажми «Начать смену», чтобы приступить к выбору проводов.`;
+    
+    container.innerHTML = `
+        <button id="btn-mg-start" class="main-btn" onclick="initWireCutProcess()" style="background: #03A9F4; font-weight: bold; padding: 15px; width: 100%; cursor: pointer;">▶️ Начать работу с проводкой</button>
+        <button onclick="loadNextHourEvent()" style="background: #777; margin-top: 8px; width: 100%;">⬅️ Назад</button>
+    `;
+}
+
+function initWireCutProcess() {
     let container = document.getElementById("choices-container");
     document.getElementById("event-text").innerText = `⚙️ Ремонт линии (Вариант 2: Замкнутые провода):\nЩит искрит! Быстро жми на правильный синий провод, время реакции сокращается с каждым днем!`;
     
@@ -863,6 +883,7 @@ function exchangeCopperToMoney(amount) {
     }
 }
 
+// Реальная реклама Adsgram (блок 49269)
 function watchRealAdsgramAd() {
     if (adsWatchedToday >= 5) { notify("🚫 Лимит рекламы исчерпан (5 в сутки)."); return; }
     if (window.Adsgram) {
@@ -878,8 +899,9 @@ function watchRealAdsgramAd() {
     }
 }
 
+// Покупка через Telegram Stars
 function payRealTelegramStars() {
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.openInvoice === "function") {
         let tgw = window.Telegram.WebApp;
         fetch('https://твой-бэкенд-сервер.onrender.com/create-invoice', {
             method: 'POST',
@@ -892,7 +914,7 @@ function payRealTelegramStars() {
                 if (status === 'paid') { copper += 20; saveGame(); notify("⭐ 20 кг меди зачислено."); openShop(); }
                 else { notify("Оплата отменена."); }
             });
-        }).catch(() => { notify("Ошибка связи с сервером."); });
+        }).catch(() => { notify("Ошибка связи с сервером кассы."); });
     } else {
         if (confirm("[Тест ПК] Симулировать оплату 5 звезд за 20 кг меди?")) {
             copper += 20; saveGame(); notify("⭐ 20 кг меди зачислено (Тест)!"); openShop();
