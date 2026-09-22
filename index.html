@@ -2,53 +2,87 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Смена: Выжить на заводе</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Подключаем Telegram Web App API -->
+    <!-- Подключаем Telegram Web App SDK и Adsgram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключаем рекламную сеть Adsgram для WebApp -->
-    <script src="https://sad.adsgram.ai/js/adsgram.min.js"></script>
+    <script src="https://sad.adsgram.ai/js/adsgram.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
-        <!-- Шапка: День и Время -->
-        <header id="header-shift">
-            <h1 id="shift-title">🌞 День 1 | Время: 07:00</h1>
+    <div id="game-container">
+        <!-- Верхняя панель статофф -->
+        <header id="stats-bar">
+            <div class="stat">🕒 День: <span id="val-day">1</span></div>
+            <div class="stat">⚡ Энергия: <span id="val-energy">100</span>%</div>
+            <div class="stat">🤯 Стресс: <span id="val-stress">0</span>%</div>
+            <div class="stat">🟫 Медь: <span id="val-copper">0</span> кг</div>
         </header>
 
-        <!-- Шкалы параметров -->
-        <div class="stats-panel">
-            <div class="stat-bar">
-                <span>🪫 Энергия:</span>
-                <div class="bar"><div id="energy-fill" class="fill" style="width: 100%;"></div></div>
+        <!-- Основной экран цеха -->
+        <main id="main-screen" class="screen">
+            <div class="machine-box">
+                <h2>Конвейер №4</h2>
+                <p id="work-status">Станок гудит, план горит.</p>
+                <div class="progress-bar-container">
+                    <div id="work-progress" class="progress-fill"></div>
+                </div>
+                <button id="btn-work" class="main-btn">Впахивать (+пата)</button>
             </div>
-            <div class="stat-bar">
-                <span>🧠 Стресс:</span>
-                <div class="bar"><div id="stress-fill" class="fill stress" style="width: 10%;"></div></div>
-            </div>
-            <div class="stat-bar">
-                <span>💰 Деньги:</span>
-                <div class="bar"><div id="money-fill" class="fill money" style="width: 15%;"></div></div>
-            </div>
-        </div>
 
-        <!-- Основная игровая карточка -->
-        <div class="card" id="game-card">
-            <div id="event-text">Загрузка смены на заводе...</div>
-            <div class="choices" id="choices-container">
-                <!-- Кнопки генерируются скриптом -->
+            <div class="actions-grid">
+                <button onclick="openMiniGame('arrow')" class="action-btn">🛠 Починить редуктор</button>
+                <button onclick="openMiniGame('wire')" class="action-btn">⚡ Замкнуть проводку</button>
+                <button onclick="openShop()" class="action-btn">🛒 Заводской ларек</button>
+                <button onclick="openPda()" class="action-btn">📱 Рабочий КПК</button>
             </div>
-        </div>
+        </main>
 
-        <!-- Экран поражения -->
-        <div id="game-over-screen" class="hidden">
-            <h2 id="end-title">Смена окончена</h2>
-            <p id="end-desc">Описание результата...</p>
-            <button onclick="restartGame()">Начать смену заново</button>
-        </div>
+        <!-- Экран мини-игры с кнопкой "Старт" -->
+        <section id="minigame-screen" class="screen hidden">
+            <div id="minigame-wrapper">
+                <h2 id="mg-title">Ремонт оборудования</h2>
+                <div id="mg-start-container">
+                    <p id="mg-desc">Внимание! Нажмите кнопку для старта испытания.</p>
+                    <button id="btn-mg-start" class="main-btn" onclick="startActiveMiniGame()">Начать</button>
+                </div>
+                <div id="mg-area" class="hidden">
+                    <!-- Динамический контент мини-игры -->
+                </div>
+                <button onclick="closeMiniGame()" class="action-btn secondary-btn">Отступить</button>
+            </div>
+        </section>
+
+        <!-- Экран Ларя (Магазин + Реклама + Звезды) -->
+        <section id="shop-screen" class="screen hidden">
+            <h2>Заводской Ларек</h2>
+            <div class="shop-items">
+                <div class="shop-card">
+                    <p>☕ Доширак (-стресс)</p>
+                    <button onclick="buyItem('doshirak')" class="action-btn">Купить (2 меди)</button>
+                </div>
+                <div class="shop-card">
+                    <p>🟫 Глянуть рекламу (+1 медь)</p>
+                    <button onclick="watchRealAdsgramAd()" class="action-btn ad-btn">Смотреть (+1 кг)</button>
+                </div>
+                <div class="shop-card star-card">
+                    <p>⭐ Поддержать завод (Telegram Stars)</p>
+                    <button onclick="buyWithTelegramStars()" class="action-btn star-btn">Задонатить (5 ⭐)</button>
+                </div>
+            </div>
+            <button onclick="closeShop()" class="action-btn secondary-btn">Назад в цех</button>
+        </section>
+
+        <!-- Экран КПК -->
+        <section id="pda-screen" class="screen hidden">
+            <h2>Старый КПК (План смены)</h2>
+            <p id="pda-text">Сводка по заводу: план выполняется из последних сил.</p>
+            <button onclick="closePda()" class="action-btn secondary-btn">Закрыть КПК</button>
+        </section>
+
+        <!-- Уведомления / Тосты -->
+        <div id="notification" class="hidden"></div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
